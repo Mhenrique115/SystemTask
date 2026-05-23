@@ -9,7 +9,8 @@ export class UserRepository {
       select: {
         id: true,
         username: true,
-        password: true,
+        email: true,
+        telefone: true,
         role: true,
         active: true,
         createdAt: true,
@@ -24,7 +25,8 @@ export class UserRepository {
       select: {
         id: true,
         username: true,
-        password: true,
+        email: true,
+        telefone: true,
         role: true,
         active: true,
         createdAt: true,
@@ -36,6 +38,38 @@ export class UserRepository {
   async findByUsername(username: string) {
     return prisma.user.findUnique({
       where: { username },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        telefone: true,
+        role: true,
+        active: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
+
+  async findByUsernameWithPassword(username: string) {
+    return prisma.user.findUnique({
+      where: { username },
+    });
+  }
+
+  async findByEmail(email: string) {
+    return prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        telefone: true,
+        role: true,
+        active: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
   }
 
@@ -49,6 +83,8 @@ export class UserRepository {
       select: {
         id: true,
         username: true,
+        email: true,
+        telefone: true,
         role: true,
         active: true,
         createdAt: true,
@@ -69,6 +105,8 @@ export class UserRepository {
       select: {
         id: true,
         username: true,
+        email: true,
+        telefone: true,
         role: true,
         active: true,
         createdAt: true,

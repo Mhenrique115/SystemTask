@@ -10,15 +10,19 @@ export const loginSchema = z.object({
 export const createUserSchema = z.object({
   username: z.string().min(3).max(50),
   password: z.string().min(6).max(100),
-  role: z.enum(['admin', 'dev']).default('dev'),
+  role: z.enum(['admin', 'dev', 'cliente']).default('cliente'),
   active: z.boolean().default(true),
+  email: z.string().email('Email inválido'),
+  telefone: z.string().max(20).optional(),
 });
 
 export const updateUserSchema = z.object({
   username: z.string().min(3).max(50).optional(),
   password: z.string().min(6).max(100).optional(),
-  role: z.enum(['admin', 'dev']).optional(),
+  role: z.enum(['admin', 'dev', 'cliente']).optional(),
   active: z.boolean().optional(),
+  email: z.string().email('Email inválido').optional(),
+  telefone: z.string().max(20).optional(),
 });
 
 // Chamado Schemas

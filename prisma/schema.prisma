@@ -11,8 +11,10 @@ model User {
   id        String    @id @default(uuid())
   username  String    @unique
   password  String
-  role      Role      @default(dev)
+  role      Role      @default(cliente)
   active    Boolean   @default(true)
+  email     String    @unique
+  telefone  String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   chamados  Chamado[]
@@ -50,6 +52,7 @@ model Tarefa {
 enum Role {
   admin
   dev
+  cliente
 }
 
 enum ChamadoStatus {

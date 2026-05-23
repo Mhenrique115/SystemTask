@@ -17,7 +17,11 @@ export class UserService {
   async create(data: CreateUserInput) {
     const existing = await userRepository.findByUsername(data.username);
     if (existing) {
-      throw new Error('Username já existe');
+      throw new Error('Username ja existe');
+    }
+    const emailExists = await userRepository.findByEmail(data.email);
+    if (emailExists) {
+      throw new Error('Email ja existe');
     }
     return userRepository.create(data);
   }
@@ -29,7 +33,14 @@ export class UserService {
     if (data.username) {
       const existing = await userRepository.findByUsername(data.username);
       if (existing && existing.id !== id) {
-        throw new Error('Username já existe');
+        throw new Error('Username ja existe');
+      }
+    }
+
+    if (data.email) {
+      const emailExists = await userRepository.findByEmail(data.email);
+      if (emailExists && emailExists.id !== id) {
+        throw new Error('Email ja existe');
       }
     }
 

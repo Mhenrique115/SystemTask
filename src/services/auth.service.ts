@@ -7,7 +7,7 @@ const userRepository = new UserRepository();
 
 export class AuthService {
   async login(data: LoginInput) {
-    const user = await userRepository.findByUsername(data.username);
+    const user = await userRepository.findByUsernameWithPassword(data.username);
 
     if (!user) {
       throw new Error('Credenciais inválidas');

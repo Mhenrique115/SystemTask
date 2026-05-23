@@ -20,6 +20,10 @@ export class UserController {
       const user = await userService.findById(req.params.id);
       res.json(user);
     } catch (err) {
+      if (err instanceof Error && err.message === 'NOT_FOUND') {
+          res.status(404).json({ error: 'Usuario nao encontrado' });
+          return;
+      }
       next(err);
     }
   }
@@ -30,9 +34,12 @@ export class UserController {
       const user = await userService.create(data);
       res.status(201).json(user);
     } catch (err) {
-      if (err instanceof Error && err.message === 'Username já existe') {
-        res.status(409).json({ error: err.message });
-        return;
+      if (
+          err instanceof Error &&
+          (err.message === 'Username ja existe' || err.message === 'Email ja existe')
+      ) {
+          res.status(409).json({ error: err.message });
+          return;
       }
       next(err);
     }
@@ -44,6 +51,17 @@ export class UserController {
       const user = await userService.update(req.params.id, data);
       res.json(user);
     } catch (err) {
+      if (
+          err instanceof Error &&
+          (err.message === 'Username ja existe' || err.message === 'Email ja existe')
+      ) {
+          res.status(409).json({ error: err.message });
+          return;
+      }
+      if (err instanceof Error && err.message === 'NOT_FOUND') {
+          res.status(404).json({ error: 'Usuario nao encontrado' });
+          return;
+      }
       next(err);
     }
   }
@@ -53,6 +71,10 @@ export class UserController {
       await userService.delete(req.params.id);
       res.status(204).send();
     } catch (err) {
+      if (err instanceof Error && err.message === 'NOT_FOUND') {
+          res.status(404).json({ error: 'Usuario nao encontrado' });
+          return;
+      }
       next(err);
     }
   }
