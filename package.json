@@ -1,0 +1,25 @@
+{
+  "name": "systemtask",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": "20.x"
+  },
+  "workspaces": [
+    "Backend",
+    "Frontend"
+  ],
+  "scripts": {
+    "build": "npm run build -w Backend",
+    "start": "npm run start -w Backend"
+  },
+  "devDependencies": {
+    "prisma": "^5.7.0"
+  },
+  "prisma": {
+    "schema": "Backend/prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0"
+  }
+}
