@@ -1,0 +1,11 @@
+
+{
+  "prisma.pinToPrisma6": true,
+  "liveServer.settings.root": "/frontend",
+  "liveServer.settings.file": "login.html",
+  "liveServer.settings.port": 5500,
+  "liveServer.settings.host": "127.0.0.1",
+  "liveServer.settings.NoBrowser": false,
+  "liveServer.settings.ignoreFiles": [],
+  "liveServer.settings.useLocalIp": false
+}

@@ -1,0 +1,68 @@
+---
+import '../styles/app.css';
+
+const {
+  title = 'HelpDesk',
+  page = '',
+  auth = true,
+} = Astro.props;
+
+const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL || 'https://systemtask-backend.onrender.com/api';
+const appBaseUrl = import.meta.env.BASE_URL;
+const appUrl = (path: string) => `${appBaseUrl.replace(/\/$/, '')}${path}`;
+---
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} - HelpDesk</title>
+    <script is:inline define:vars={{ apiBaseUrl, appBaseUrl }}>
+      window.HELPDESK_API_BASE_URL = apiBaseUrl;
+      window.HELPDESK_APP_BASE_URL = appBaseUrl;
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.3/dist/purify.min.js" defer></script>
+    <script>
+      import '../scripts/app.ts';
+    </script>
+  </head>
+  <body data-page={page} data-auth={auth ? 'required' : 'guest'}>
+    <div id="toast-root"></div>
+    {auth ? (
+      <div class="shell">
+        <aside class="sidebar">
+          <a class="brand" href={appUrl('/')}>
+            <span class="brand-mark">H</span>
+            <span>
+              <strong>HelpDesk</strong>
+              <small>Operacao</small>
+            </span>
+          </a>
+          <nav class="nav" id="app-nav">
+            <a href={appUrl('/')} data-nav="dashboard">Dashboard</a>
+            <a href={appUrl('/chamados')} data-nav="chamados">Chamados</a>
+            <a href={appUrl('/usuarios')} data-nav="usuarios">Usuarios</a>
+            <a href={appUrl('/cliente/chamados')} data-nav="cliente">Meus chamados</a>
+          </nav>
+          <div class="session">
+            <div>
+              <strong id="session-name">-</strong>
+              <small id="session-role">-</small>
+            </div>
+            <button class="ghost danger" id="logout-btn" type="button">Sair</button>
+          </div>
+        </aside>
+        <main class="main">
+          <header class="topbar">
+            <h1>{title}</h1>
+          </header>
+          <section class="content">
+            <slot />
+          </section>
+        </main>
+      </div>
+    ) : (
+      <slot />
+    )}
+  </body>
+</html>

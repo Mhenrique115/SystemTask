@@ -1,0 +1,26 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+---
+<AppLayout title="Login" page="login" auth={false}>
+  <main class="login-page">
+    <section class="card login-card">
+      <div class="page-head">
+        <div>
+          <h2>HelpDesk</h2>
+          <p class="muted">Entre com seu usuario e senha.</p>
+        </div>
+      </div>
+      <form id="login-form" class="grid">
+        <label>
+          Usuario
+          <input id="login-username" autocomplete="username" required />
+        </label>
+        <label>
+          Senha
+          <input id="login-password" type="password" autocomplete="current-password" required />
+        </label>
+        <button type="submit">Entrar</button>
+      </form>
+    </section>
+  </main>
+</AppLayout>

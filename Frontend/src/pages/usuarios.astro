@@ -1,0 +1,60 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+---
+<AppLayout title="Usuarios" page="usuarios">
+  <div class="page-head">
+    <div>
+      <h2>Usuarios</h2>
+      <p class="muted">Cadastro com email, telefone, cargo e status.</p>
+    </div>
+    <button id="new-user-btn" type="button">Novo usuario</button>
+  </div>
+  <div id="users-view" class="panel"></div>
+
+  <div id="user-modal" class="modal">
+    <section class="card modal-box">
+      <div class="modal-head">
+        <h3 id="user-modal-title">Usuario</h3>
+        <button class="ghost" data-close-modal="user-modal" type="button">Fechar</button>
+      </div>
+      <form id="user-form" class="form-grid">
+        <input id="user-id" type="hidden" />
+        <label>
+          Username
+          <input id="user-username" required />
+        </label>
+        <label>
+          Email
+          <input id="user-email" type="email" required />
+        </label>
+        <label>
+          Telefone
+          <input id="user-telefone" placeholder="11999999999" />
+        </label>
+        <label>
+          Cargo
+          <select id="user-role">
+            <option value="cliente">Cliente</option>
+            <option value="dev">Dev</option>
+            <option value="admin">Admin</option>
+          </select>
+        </label>
+        <label>
+          Ativo
+          <select id="user-active">
+            <option value="true">Sim</option>
+            <option value="false">Nao</option>
+          </select>
+        </label>
+        <label>
+          Senha
+          <input id="user-password" type="password" placeholder="Preencha apenas para criar ou alterar" />
+        </label>
+        <div class="actions full">
+          <button class="ghost" data-close-modal="user-modal" type="button">Cancelar</button>
+          <button type="submit">Salvar</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</AppLayout>

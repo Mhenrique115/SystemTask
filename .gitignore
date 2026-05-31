@@ -1,65 +1,32 @@
-# ============================================================
-#  HelpDesk Backend — .gitignore
-# ============================================================
-
-# ───────────────────────────────
-#  Node
-# ───────────────────────────────
+# Dependencies
 node_modules/
-dist/
+**/node_modules/
 
-# ───────────────────────────────
-#  Ambiente
-# ───────────────────────────────
+# Build output
+dist/
+**/dist/
+.astro/
+**/.astro/
+
+# Environment
 .env
 .env.local
 .env.*.local
 
-# ───────────────────────────────
-#  Prisma
-# ───────────────────────────────
-node_modules/.prisma/
-src/generated/
-
-# ───────────────────────────────
-#  Logs
-# ───────────────────────────────
+# Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
 
-# ───────────────────────────────
-#  TypeScript
-# ───────────────────────────────
+# TypeScript
 *.tsbuildinfo
 
-# ───────────────────────────────
-#  Sistema Operacional
-# ───────────────────────────────
+# OS and editors
 .DS_Store
-.DS_Store?
-._*
 Thumbs.db
 desktop.ini
-
-# ───────────────────────────────
-#  Editores / IDEs
-# ───────────────────────────────
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
 .idea/
-*.swp
-*.swo
-
-# ───────────────────────────────
-#  Miscelânea
-# ───────────────────────────────
-*.zip
-*.tar.gz
-*.bak
-*.tmp
-coverage/
-.nyc_output/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
