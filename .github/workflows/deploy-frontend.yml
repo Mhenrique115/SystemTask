@@ -38,6 +38,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Rollup Linux native package
+        run: npm install @rollup/rollup-linux-x64-gnu@4.60.4 --no-save
+
       - name: Build
         env:
           PUBLIC_API_BASE_URL: https://api-chamados-886w.onrender.com/api
