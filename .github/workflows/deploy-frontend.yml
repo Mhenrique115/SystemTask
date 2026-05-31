@@ -30,20 +30,18 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: Frontend/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
       - name: Install dependencies
-        working-directory: Frontend
-        run: npm ci --include=optional
+        run: npm ci
 
       - name: Build
-        working-directory: Frontend
         env:
           PUBLIC_API_BASE_URL: https://api-chamados-886w.onrender.com/api
-        run: npm run build
+        run: npm run build -w Frontend
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
