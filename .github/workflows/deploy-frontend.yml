@@ -42,7 +42,7 @@ jobs:
       - name: Build
         working-directory: Frontend
         env:
-          PUBLIC_API_BASE_URL: https://systemtask-backend.onrender.com/api
+          PUBLIC_API_BASE_URL: https://api-chamados-886w.onrender.com/api
         run: npm run build
 
       - name: Upload artifact
