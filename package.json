@@ -10,7 +10,7 @@
     "Frontend"
   ],
   "scripts": {
-    "build": "npm run build -w Backend",
+    "build": "npm run build -w Backend && node scripts/create-render-entry.mjs",
     "start": "npm run start -w Backend"
   },
   "devDependencies": {

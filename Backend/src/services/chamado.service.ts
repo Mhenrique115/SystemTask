@@ -66,6 +66,9 @@ function enrichChamado(chamado: {
   };
 }
 
+type EnrichedChamado = ReturnType<typeof enrichChamado>;
+type ChamadoForEnrichment = Parameters<typeof enrichChamado>[0];
+
 export class ChamadoService {
   private async validateCliente(clienteId: string) {
     const cliente = await userRepository.findById(clienteId);
@@ -135,8 +138,8 @@ export class ChamadoService {
   }
 
   async getDashboard() {
-    const chamados = await chamadoRepository.getDashboardStats();
-    const enriched = chamados.map(enrichChamado);
+    const chamados = await chamadoRepository.getDashboardStats() as ChamadoForEnrichment[];
+    const enriched: EnrichedChamado[] = chamados.map((chamado) => enrichChamado(chamado));
 
     // Top users by finalized chamados
     const userCounts: Record<string, { username: string; count: number }> = {};
