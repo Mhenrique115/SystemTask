@@ -11,6 +11,7 @@ declare global {
 type Role = 'admin' | 'dev' | 'cliente';
 type ChamadoStatus = 'aberto' | 'finalizado';
 type TarefaStatus = 'aberto' | 'fechado';
+type ValorTipo = 'hora' | 'fixo';
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 interface User {
@@ -50,6 +51,7 @@ interface Chamado {
   dtInicio: string;
   dtFim: string | null;
   valor: number;
+  valorTipo: ValorTipo;
   valorTotal?: number;
   tempoTotalMinutos?: number;
   tempoTotalFormatado?: string;
@@ -66,13 +68,14 @@ interface DashboardData {
     tempoTotalMinutos: number;
     tempoFormatado: string;
     valor: number;
+    valorTipo: ValorTipo;
     valorTotal: number;
   }>;
   topUsuarios: Array<{ id: string; username: string; count: number }>;
 }
 
 type UserPayload = Partial<Pick<User, 'username' | 'email' | 'telefone' | 'role' | 'active'>> & { password?: string };
-type ChamadoPayload = Partial<Pick<Chamado, 'nome' | 'mensagem' | 'mensagemHtml' | 'clienteId' | 'usuarioId' | 'valor'>>;
+type ChamadoPayload = Partial<Pick<Chamado, 'nome' | 'mensagem' | 'mensagemHtml' | 'clienteId' | 'usuarioId' | 'valor' | 'valorTipo'>>;
 type TarefaPayload = Pick<Tarefa, 'descricao'>;
 
 const API_BASE = window.HELPDESK_API_BASE_URL;
@@ -459,6 +462,11 @@ async function initTickets() {
     $('ticket-user-id').innerHTML = '<option value="">Selecione</option>' + staff.map((u) => `<option value="${u.id}">${u.username}</option>`).join('');
   }
 
+  function setValueKind(kind: ValorTipo) {
+    ($('ticket-value-hourly') as HTMLInputElement).checked = kind === 'hora';
+    ($('ticket-value-fixed') as HTMLInputElement).checked = kind === 'fixo';
+  }
+
   async function load() {
     state.tickets = await api.chamados();
     renderTickets();
@@ -474,11 +482,11 @@ async function initTickets() {
     $('tickets-view').innerHTML = `
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Chamado</th><th>Cliente</th><th>Responsavel</th><th>Status</th><th>Inicio</th><th>Acoes</th></tr></thead>
+          <thead><tr><th>Titulo</th><th>Usuario</th><th>Responsavel</th><th>Status</th><th>Inicio</th><th>Acoes</th></tr></thead>
           <tbody>${rows.map((c) => `
             <tr>
               <td><a href="${appUrl(`/chamado-detalhe?id=${c.id}`)}"><strong>${c.nome}</strong></a></td>
-              <td>${clienteName(c)}<br><small class="muted">${c.cliente?.email || ''}</small></td>
+              <td>${clienteName(c)}</td>
               <td>${c.usuario?.username || '-'}</td>
               <td>${statusBadge(c.status)}</td>
               <td>${date(c.dtInicio)}</td>
@@ -490,7 +498,11 @@ async function initTickets() {
 
   async function searchClientes(value: string) {
     const items = await api.clientes(value, 20);
+    const usernamesById = new Map(items.map((item) => [item.id, item.username]));
     $('ticket-client-results').innerHTML = items.map((c) => `<option value="${c.id}">${c.username} · ${c.email}${c.telefone ? ` · ${c.telefone}` : ''}</option>`).join('');
+    Array.from(($('ticket-client-results') as HTMLSelectElement).options).forEach((option) => {
+      option.textContent = usernamesById.get(option.value) || option.textContent;
+    });
   }
 
   $('ticket-client-search')?.addEventListener('input', (event: Event) => searchClientes((event.target as HTMLInputElement).value));
@@ -502,12 +514,16 @@ async function initTickets() {
   });
   $('ticket-search')?.addEventListener('input', renderTickets);
   $('ticket-status')?.addEventListener('change', renderTickets);
+  $('ticket-value-hourly')?.addEventListener('change', () => setValueKind('hora'));
+  $('ticket-value-fixed')?.addEventListener('change', () => setValueKind('fixo'));
 
   $('new-ticket-btn')?.addEventListener('click', async () => {
     fillStaffSelect();
     $('ticket-modal-title').textContent = 'Novo chamado';
     $('ticket-form').reset();
     $('ticket-id').value = '';
+    $('ticket-client-id').value = '';
+    setValueKind('hora');
     $('ticket-message-editor').innerHTML = '';
     await searchClientes('');
     openModal('ticket-modal');
@@ -524,9 +540,10 @@ async function initTickets() {
       $('ticket-id').value = c.id;
       $('ticket-name').value = c.nome;
       $('ticket-client-id').value = c.clienteId;
-      $('ticket-client-search').value = selectedClientFromTicket(c)?.label || '';
+      $('ticket-client-search').value = c.cliente?.username || '';
       $('ticket-user-id').value = c.usuarioId;
       $('ticket-value').value = c.valor || 0;
+      setValueKind(c.valorTipo || 'hora');
       $('ticket-message-editor').innerHTML = sanitize(c.mensagemHtml || '');
       await searchClientes(c.cliente?.username || '');
       openModal('ticket-modal');
@@ -546,10 +563,11 @@ async function initTickets() {
       clienteId: $('ticket-client-id').value,
       usuarioId: $('ticket-user-id').value,
       valor: Number($('ticket-value').value || 0),
+      valorTipo: ($('ticket-value-fixed') as HTMLInputElement).checked ? 'fixo' : 'hora',
       mensagem: stripHtml(html),
       mensagemHtml: html,
     };
-    if (!data.nome || !data.clienteId || !data.usuarioId) return toast('Preencha nome, cliente e responsavel', 'error');
+    if (!data.nome || !data.clienteId || !data.usuarioId) return toast('Preencha titulo, usuario e responsavel', 'error');
     try {
       const id = $('ticket-id').value;
       id ? await api.updateChamado(id, data) : await api.createChamado(data);
@@ -569,7 +587,7 @@ function renderTicketHeader(c: Chamado, clientMode = false) {
     <div class="page-head">
       <div>
         <h2>${c.nome}</h2>
-        <p class="muted">Cliente: ${clienteName(c)} · Responsavel: ${c.usuario?.username || '-'}</p>
+        <p class="muted">Usuario: ${clienteName(c)} · Responsavel: ${c.usuario?.username || '-'}</p>
       </div>
       <div>${statusBadge(c.status)}</div>
     </div>

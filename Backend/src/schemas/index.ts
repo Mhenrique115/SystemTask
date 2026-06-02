@@ -37,12 +37,13 @@ export const updateUserSchema = z.object({
 
 // Chamado Schemas
 export const createChamadoSchema = z.object({
-  nome: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
+  nome: z.string().min(3, 'Titulo deve ter pelo menos 3 caracteres'),
   mensagem: z.string().optional(),
   mensagemHtml: z.string().optional(),
   clienteId: z.string().uuid('ID do cliente invalido'),
   usuarioId: z.string().uuid('ID do usuário inválido'),
   valor: z.number().min(0).default(0),
+  valorTipo: z.enum(['hora', 'fixo']).default('hora'),
 });
 
 export const updateChamadoSchema = z.object({
@@ -52,6 +53,7 @@ export const updateChamadoSchema = z.object({
   clienteId: z.string().uuid().optional(),
   usuarioId: z.string().uuid().optional(),
   valor: z.number().min(0).optional(),
+  valorTipo: z.enum(['hora', 'fixo']).optional(),
   dtFim: z.string().datetime().optional(),
   status: z.enum(['aberto', 'finalizado']).optional(),
 });

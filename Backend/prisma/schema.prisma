@@ -34,6 +34,7 @@ model Chamado {
   dtInicio     DateTime      @default(now())
   dtFim        DateTime?
   valor        Float         @default(0)
+  valorTipo    ValorTipo     @default(hora)
   usuario      User          @relation("ChamadoUsuario", fields: [usuarioId], references: [id])
   cliente      User          @relation("ChamadoCliente", fields: [clienteId], references: [id])
   tarefas      Tarefa[]
@@ -67,4 +68,9 @@ enum ChamadoStatus {
 enum TarefaStatus {
   aberto
   fechado
+}
+
+enum ValorTipo {
+  hora
+  fixo
 }

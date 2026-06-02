@@ -5,12 +5,12 @@ import AppLayout from '../layouts/AppLayout.astro';
   <div class="page-head">
     <div>
       <h2>Chamados</h2>
-      <p class="muted">Chamados vinculados a clientes existentes.</p>
+      <p class="muted">Chamados vinculados a usuarios existentes.</p>
     </div>
     <button id="new-ticket-btn" type="button">Novo chamado</button>
   </div>
   <div class="toolbar">
-    <input id="ticket-search" placeholder="Buscar chamado, cliente ou responsavel" />
+    <input id="ticket-search" placeholder="Buscar titulo, usuario ou responsavel" />
     <select id="ticket-status">
       <option value="">Todos</option>
       <option value="aberto">Aberto</option>
@@ -29,12 +29,12 @@ import AppLayout from '../layouts/AppLayout.astro';
         <input id="ticket-id" type="hidden" />
         <input id="ticket-client-id" type="hidden" />
         <label class="full">
-          Nome
+          Titulo
           <input id="ticket-name" required />
         </label>
         <label class="full">
-          Cliente
-          <input id="ticket-client-search" autocomplete="off" placeholder="Digite nome, email ou telefone" />
+          Usuario
+          <input id="ticket-client-search" autocomplete="off" placeholder="Pesquisar usuario" />
           <select id="ticket-client-results" size="4"></select>
         </label>
         <label>
@@ -42,9 +42,14 @@ import AppLayout from '../layouts/AppLayout.astro';
           <select id="ticket-user-id" required></select>
         </label>
         <label>
-          Valor por hora
+          Valor
           <input id="ticket-value" type="number" min="0" step="0.01" />
         </label>
+        <fieldset class="value-kind">
+          <legend>Tipo de valor</legend>
+          <label><input id="ticket-value-hourly" name="ticket-value-kind" type="checkbox" value="hora" checked /> Por hora</label>
+          <label><input id="ticket-value-fixed" name="ticket-value-kind" type="checkbox" value="fixo" /> Fixo</label>
+        </fieldset>
         <label class="full">
           Mensagem
           <div class="rich-toolbar" data-editor-toolbar="ticket-message-editor"></div>

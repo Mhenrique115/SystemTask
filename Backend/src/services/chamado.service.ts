@@ -42,6 +42,7 @@ function enrichChamado(chamado: {
   dtInicio: Date;
   dtFim: Date | null;
   valor: number;
+  valorTipo: 'hora' | 'fixo';
   usuario: { id: string; username: string; role: string };
   cliente: { id: string; username: string; email: string; telefone: string | null; role: string };
   tarefas: Array<{ id: string; chamadoId: string; descricao: string; dtInicio: Date; dtFim: Date | null; status: string }>;
@@ -52,7 +53,9 @@ function enrichChamado(chamado: {
   }));
 
   const tempoTotalMinutos = calcularTempoTotalChamado(chamado);
-  const valorTotal = (chamado.valor || 0) * (tempoTotalMinutos / 60);
+  const valorTotal = chamado.valorTipo === 'fixo'
+    ? chamado.valor || 0
+    : (chamado.valor || 0) * (tempoTotalMinutos / 60);
 
   return {
     ...chamado,
@@ -178,6 +181,7 @@ export class ChamadoService {
       tempoTotalMinutos: c.tempoTotalMinutos,
       tempoFormatado: c.tempoTotalFormatado,
       valor: c.valor,
+      valorTipo: c.valorTipo,
       valorTotal: c.valorTotal,
     }));
 
