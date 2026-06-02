@@ -619,7 +619,6 @@ function taskCard(t: Tarefa, clientMode = false) {
 }
 
 async function initTicketDetail() {
-  setupEditor('task-message-editor');
   const id = new URLSearchParams(location.search).get('id');
   if (!id) return navigate('/chamados');
   const chamadoId = id;
