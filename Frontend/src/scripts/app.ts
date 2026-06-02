@@ -164,7 +164,11 @@ async function request<T>(method: HttpMethod, path: string, body?: unknown): Pro
   if (res.status === 204) return null as T;
 
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error((data as { error?: string }).error || 'Erro na requisicao');
+  if (!res.ok) {
+    const errorData = data as { error?: string; details?: Array<{ message?: string }> };
+    const detail = errorData.details?.map((item) => item.message).filter(Boolean).join('. ');
+    throw new Error(detail || errorData.error || 'Erro na requisicao');
+  }
   return data as T;
 }
 
