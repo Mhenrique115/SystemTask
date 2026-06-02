@@ -143,21 +143,67 @@ export class ChamadoService {
   async getDashboard() {
     const chamados = await chamadoRepository.getDashboardStats() as ChamadoForEnrichment[];
     const enriched: EnrichedChamado[] = chamados.map((chamado) => enrichChamado(chamado));
+    const now = new Date();
+    const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const abertos = enriched.filter((c) => c.status === 'aberto');
+    const fechados = enriched.filter((c) => c.status === 'finalizado');
+
+    const totais = {
+      abertos: abertos.length,
+      fechados: fechados.length,
+      total: enriched.length,
+      valorAberto: abertos.reduce((acc, c) => acc + c.valorTotal, 0),
+      valorFechado: fechados.reduce((acc, c) => acc + c.valorTotal, 0),
+      valorTotal: enriched.reduce((acc, c) => acc + c.valorTotal, 0),
+    };
+
+    const pendentes = abertos
+      .sort((a, b) => b.tempoTotalMinutos - a.tempoTotalMinutos)
+      .map((c) => ({
+        id: c.id,
+        nome: c.nome,
+        cliente: c.cliente.username,
+        responsavel: c.usuario.username,
+        tempoTotalMinutos: c.tempoTotalMinutos,
+        tempoFormatado: c.tempoTotalFormatado,
+        valor: c.valor,
+        valorTipo: c.valorTipo,
+        valorTotal: c.valorTotal,
+      }));
+
+    const clientesPorValor: Record<string, { id: string; username: string; valorTotal: number; count: number }> = {};
+    enriched.forEach((c) => {
+      const id = c.cliente.id;
+      if (!clientesPorValor[id]) {
+        clientesPorValor[id] = { id, username: c.cliente.username, valorTotal: 0, count: 0 };
+      }
+      clientesPorValor[id].valorTotal += c.valorTotal;
+      clientesPorValor[id].count++;
+    });
+
+    const topClientesPorValor = Object.values(clientesPorValor)
+      .sort((a, b) => b.valorTotal - a.valorTotal)
+      .slice(0, 5);
+
+    const valorUltimos30Dias = fechados
+      .filter((c) => c.dtFim && c.dtFim >= last30Days)
+      .reduce((acc, c) => acc + c.valorTotal, 0);
 
     // Top users by finalized chamados
-    const userCounts: Record<string, { username: string; count: number }> = {};
+    const userCounts: Record<string, { id: string; username: string; role: string; count: number }> = {};
     enriched.forEach((c) => {
-      if (c.status === 'finalizado') {
+      if (c.status === 'finalizado' && (c.usuario.role === 'admin' || c.usuario.role === 'dev')) {
         const uid = c.usuarioId;
         if (!userCounts[uid]) {
-          userCounts[uid] = { username: c.usuario.username, count: 0 };
+          userCounts[uid] = { id: uid, username: c.usuario.username, role: c.usuario.role, count: 0 };
         }
         userCounts[uid].count++;
       }
     });
 
     const topUsuarios = Object.entries(userCounts)
-      .map(([id, data]) => ({ id, ...data }))
+      .map(([, data]) => data)
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
 
@@ -185,6 +231,15 @@ export class ChamadoService {
       valorTotal: c.valorTotal,
     }));
 
-    return { resumo, topUsuarios, topPorTempo, topPorValor };
+    return {
+      resumo,
+      totais,
+      pendentes,
+      topClientesPorValor,
+      valorUltimos30Dias,
+      topUsuarios,
+      topPorTempo,
+      topPorValor,
+    };
   }
 }

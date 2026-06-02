@@ -61,6 +61,14 @@ interface Chamado {
 }
 
 interface DashboardData {
+  totais: {
+    abertos: number;
+    fechados: number;
+    total: number;
+    valorAberto: number;
+    valorFechado: number;
+    valorTotal: number;
+  };
   resumo: Array<{
     id: string;
     nome: string;
@@ -71,7 +79,20 @@ interface DashboardData {
     valorTipo: ValorTipo;
     valorTotal: number;
   }>;
-  topUsuarios: Array<{ id: string; username: string; count: number }>;
+  pendentes: Array<{
+    id: string;
+    nome: string;
+    cliente: string;
+    responsavel: string;
+    tempoTotalMinutos: number;
+    tempoFormatado: string;
+    valor: number;
+    valorTipo: ValorTipo;
+    valorTotal: number;
+  }>;
+  topClientesPorValor: Array<{ id: string; username: string; valorTotal: number; count: number }>;
+  valorUltimos30Dias: number;
+  topUsuarios: Array<{ id: string; username: string; role: Role; count: number }>;
 }
 
 type UserPayload = Partial<Pick<User, 'username' | 'email' | 'telefone' | 'role' | 'active'>> & { password?: string };
@@ -345,17 +366,81 @@ async function initLogin() {
 async function initDashboard() {
   try {
     const data = await api.dashboard();
+    const emptyRow = (cols: number, text = 'Nenhum registro.') => `<tr><td colspan="${cols}" class="muted">${text}</td></tr>`;
+    const resumo = data.resumo || [];
+    const totais = data.totais || {
+      abertos: resumo.filter((c) => c.status === 'aberto').length,
+      fechados: resumo.filter((c) => c.status === 'finalizado').length,
+      total: resumo.length,
+      valorAberto: 0,
+      valorFechado: 0,
+      valorTotal: 0,
+    };
+    const pendentes = data.pendentes || [];
+    const topClientesPorValor = data.topClientesPorValor || [];
+    const valorUltimos30Dias = data.valorUltimos30Dias || 0;
+    const topUsuarios = data.topUsuarios || [];
     $('dashboard-view').innerHTML = `
       <div class="grid cols-3">
-        <div class="card"><span class="muted">Chamados</span><h2>${data.resumo.length}</h2></div>
-        <div class="card"><span class="muted">Top usuarios</span><h2>${data.topUsuarios.length}</h2></div>
-        <div class="card"><span class="muted">Valor total</span><h2>${money(data.resumo.reduce((acc, c) => acc + Number(c.valorTotal || 0), 0))}</h2></div>
+        <div class="card"><span class="muted">Chamados abertos</span><h2>${totais.abertos}</h2></div>
+        <div class="card"><span class="muted">Chamados fechados</span><h2>${totais.fechados}</h2></div>
+        <div class="card"><span class="muted">Total de chamados</span><h2>${totais.total}</h2></div>
+      </div>
+      <div class="grid cols-3" style="margin-top:16px">
+        <div class="card"><span class="muted">Total aberto</span><h2>${money(totais.valorAberto)}</h2></div>
+        <div class="card"><span class="muted">Total fechado</span><h2>${money(totais.valorFechado)}</h2></div>
+        <div class="card"><span class="muted">Ultimos 30 dias</span><h2>${money(valorUltimos30Dias)}</h2></div>
       </div>
       <div class="panel" style="margin-top:16px">
+        <div class="panel-head"><h3>Lista de chamados pendentes</h3></div>
         <table>
-          <thead><tr><th>Chamado</th><th>Status</th><th>Tempo</th><th>Valor total</th></tr></thead>
-          <tbody>${data.resumo.map((c) => `<tr><td>${c.nome}</td><td>${statusBadge(c.status)}</td><td>${c.tempoFormatado}</td><td>${money(c.valorTotal)}</td></tr>`).join('')}</tbody>
+          <thead><tr><th>Titulo</th><th>Usuario</th><th>Responsavel</th><th>Tempo</th><th>Valor</th><th>Total</th></tr></thead>
+          <tbody>${pendentes.length
+            ? pendentes.map((c) => `
+              <tr>
+                <td><a href="${appUrl(`/chamado-detalhe?id=${c.id}`)}">${c.nome}</a></td>
+                <td>${c.cliente}</td>
+                <td>${c.responsavel}</td>
+                <td>${c.tempoFormatado}</td>
+                <td>${money(c.valor)} <span class="muted">${c.valorTipo === 'hora' ? '/ hora' : 'fixo'}</span></td>
+                <td>${money(c.valorTotal)}</td>
+              </tr>`).join('')
+            : emptyRow(6)}
+          </tbody>
         </table>
+      </div>
+      <div class="grid cols-3" style="margin-top:16px">
+        <div class="panel">
+          <div class="panel-head"><h3>Top clientes por valor</h3></div>
+          <table>
+            <thead><tr><th>Usuario</th><th>Chamados</th><th>Valor</th></tr></thead>
+            <tbody>${topClientesPorValor.length
+              ? topClientesPorValor.map((c) => `<tr><td>${c.username}</td><td>${c.count}</td><td>${money(c.valorTotal)}</td></tr>`).join('')
+              : emptyRow(3)}
+            </tbody>
+          </table>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Top 5 responsaveis</h3></div>
+          <table>
+            <thead><tr><th>Usuario</th><th>Cargo</th><th>Fechados</th></tr></thead>
+            <tbody>${topUsuarios.length
+              ? topUsuarios.map((u) => `<tr><td>${u.username}</td><td>${roleLabel(u.role)}</td><td>${u.count}</td></tr>`).join('')
+              : emptyRow(3)}
+            </tbody>
+          </table>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Resumo geral</h3></div>
+          <table>
+            <thead><tr><th>Status</th><th>Qtd</th><th>Valor</th></tr></thead>
+            <tbody>
+              <tr><td>Aberto</td><td>${totais.abertos}</td><td>${money(totais.valorAberto)}</td></tr>
+              <tr><td>Fechado</td><td>${totais.fechados}</td><td>${money(totais.valorFechado)}</td></tr>
+              <tr><td>Total</td><td>${totais.total}</td><td>${money(totais.valorTotal)}</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>`;
   } catch (err) {
     toast(errorMessage(err), 'error');
