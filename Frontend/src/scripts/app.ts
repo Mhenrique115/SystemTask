@@ -295,6 +295,8 @@ function setupEditor(editorId: string) {
 async function initLogin() {
   const passwordInput = document.getElementById('login-password') as HTMLInputElement | null;
   const togglePassword = document.getElementById('toggle-login-password') as HTMLButtonElement | null;
+  const loginForm = document.getElementById('login-form') as HTMLFormElement | null;
+  const loginSubmit = document.getElementById('login-submit') as HTMLButtonElement | null;
 
   togglePassword?.addEventListener('click', () => {
     if (!passwordInput) return;
@@ -305,15 +307,31 @@ async function initLogin() {
     togglePassword.setAttribute('aria-pressed', String(isHidden));
   });
 
-  $('login-form')?.addEventListener('submit', async (event: Event) => {
-    event.preventDefault();
+  async function submitLogin(event?: Event) {
+    event?.preventDefault();
+    const username = ($('login-username') as HTMLInputElement).value.trim();
+    const password = ($('login-password') as HTMLInputElement).value;
+    if (!username || !password) {
+      toast('Informe usuario e senha', 'error');
+      return;
+    }
+
+    if (loginSubmit) loginSubmit.disabled = true;
     try {
-      const data = await api.login($('login-username').value.trim(), $('login-password').value);
+      const data = await api.login(username, password);
       setSession(data);
       navigate(data.user.role === 'cliente' ? '/cliente/chamados' : '/');
     } catch (err) {
       toast(errorMessage(err), 'error');
+    } finally {
+      if (loginSubmit) loginSubmit.disabled = false;
     }
+  }
+
+  loginForm?.addEventListener('submit', submitLogin);
+  loginSubmit?.addEventListener('click', submitLogin);
+  passwordInput?.addEventListener('keydown', (event: KeyboardEvent) => {
+    if (event.key === 'Enter') void submitLogin(event);
   });
 }
 
