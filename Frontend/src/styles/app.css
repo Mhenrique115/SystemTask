@@ -44,11 +44,9 @@ button, input, select, textarea { font: inherit; }
 .brand-mark {
   width: 34px;
   height: 34px;
-  display: grid;
-  place-items: center;
+  display: block;
   border-radius: 8px;
-  background: var(--accent);
-  font-weight: 800;
+  object-fit: cover;
 }
 .brand strong, .session strong { display: block; }
 .brand small, .session small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }

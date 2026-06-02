@@ -10,6 +10,8 @@ const {
 const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL || 'https://api-chamados-886w.onrender.com/api';
 const appBaseUrl = import.meta.env.BASE_URL;
 const appUrl = (path: string) => `${appBaseUrl.replace(/\/$/, '')}${path}`;
+const assetUrl = (path: string) => `${appBaseUrl.replace(/\/$/, '')}${path}`;
+const logoUrl = assetUrl('/imgs/favicon.svg');
 ---
 <!doctype html>
 <html lang="pt-BR">
@@ -17,6 +19,7 @@ const appUrl = (path: string) => `${appBaseUrl.replace(/\/$/, '')}${path}`;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} - HelpDesk</title>
+    <link rel="icon" type="image/svg+xml" href={logoUrl} />
     <script is:inline define:vars={{ apiBaseUrl, appBaseUrl }}>
       window.HELPDESK_API_BASE_URL = apiBaseUrl;
       window.HELPDESK_APP_BASE_URL = appBaseUrl;
@@ -32,7 +35,7 @@ const appUrl = (path: string) => `${appBaseUrl.replace(/\/$/, '')}${path}`;
       <div class="shell">
         <aside class="sidebar">
           <a class="brand" href={appUrl('/')}>
-            <span class="brand-mark">H</span>
+            <img class="brand-mark" src={logoUrl} alt="" aria-hidden="true" />
             <span>
               <strong>HelpDesk</strong>
               <small>Operacao</small>
