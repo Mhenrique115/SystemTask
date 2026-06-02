@@ -16,7 +16,7 @@ SELECT DISTINCT
     'cliente-' || md5("cliente"),
     'cliente_' || substring(md5("cliente") from 1 for 12),
     'migrated-client',
-    'cliente',
+    'cliente'::"Role",
     false,
     'cliente_' || substring(md5("cliente") from 1 for 12) || '@migrado.local',
     CURRENT_TIMESTAMP,
