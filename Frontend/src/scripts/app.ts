@@ -600,7 +600,12 @@ function renderTicketHeader(c: Chamado, clientMode = false) {
       <h3>Mensagem do chamado</h3>
       ${renderRich(c.mensagemHtml, c.mensagem || 'Sem mensagem registrada.')}
     </section>
-    ${clientMode ? '' : `<div style="margin-top:16px"><button id="toggle-task-form" type="button">Nova tarefa</button></div>`}`;
+    ${clientMode || c.status !== 'aberto' ? '' : `
+      <div class="toolbar" style="margin-top:16px">
+        <button id="toggle-task-form" type="button">Nova tarefa</button>
+        <button class="success" data-finalize-ticket="${c.id}" type="button">Fechar chamado</button>
+      </div>
+    `}`;
 }
 
 function taskCard(t: Tarefa, clientMode = false) {
@@ -654,6 +659,15 @@ async function initTicketDetail() {
   }
 
   $('ticket-detail-view')?.addEventListener('click', async (event: Event) => {
+    const finalize = closest<HTMLButtonElement>(event, '[data-finalize-ticket]');
+    if (finalize) {
+      if (!confirm('Fechar este chamado?')) return;
+      await api.finalizarChamado(finalize.dataset.finalizeTicket || '');
+      toast('Chamado fechado');
+      await load();
+      return;
+    }
+
     const btn = closest<HTMLButtonElement>(event, '[data-close-task]');
     if (!btn) return;
     await api.fecharTarefa(btn.dataset.closeTask || '');
