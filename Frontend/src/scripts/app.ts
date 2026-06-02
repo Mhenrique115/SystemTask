@@ -202,10 +202,12 @@ function bindCommon() {
     const button = btn as HTMLElement;
     button.addEventListener('click', () => closeModal(button.dataset.closeModal || ''));
   });
-  $('logout-btn')?.addEventListener('click', () => {
+  document.getElementById('logout-btn')?.addEventListener('click', () => {
     clearSession();
     navigate('/login');
   });
+
+  if (!document.querySelector('.shell')) return;
 
   const user = getUser();
   if (user) {
