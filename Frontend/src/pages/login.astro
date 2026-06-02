@@ -17,7 +17,10 @@ import AppLayout from '../layouts/AppLayout.astro';
         </label>
         <label>
           Senha
-          <input id="login-password" type="password" autocomplete="current-password" required />
+          <span class="password-field">
+            <input id="login-password" type="password" autocomplete="current-password" required />
+            <button id="toggle-login-password" class="password-toggle" type="button" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button>
+          </span>
         </label>
         <button type="submit">Entrar</button>
       </form>

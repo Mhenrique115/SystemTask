@@ -291,6 +291,18 @@ function setupEditor(editorId: string) {
 }
 
 async function initLogin() {
+  const passwordInput = document.getElementById('login-password') as HTMLInputElement | null;
+  const togglePassword = document.getElementById('toggle-login-password') as HTMLButtonElement | null;
+
+  togglePassword?.addEventListener('click', () => {
+    if (!passwordInput) return;
+    const isHidden = passwordInput.type === 'password';
+    passwordInput.type = isHidden ? 'text' : 'password';
+    togglePassword.textContent = isHidden ? 'Ocultar' : 'Mostrar';
+    togglePassword.setAttribute('aria-label', isHidden ? 'Ocultar senha' : 'Mostrar senha');
+    togglePassword.setAttribute('aria-pressed', String(isHidden));
+  });
+
   $('login-form')?.addEventListener('submit', async (event: Event) => {
     event.preventDefault();
     try {
