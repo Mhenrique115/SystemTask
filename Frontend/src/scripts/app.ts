@@ -805,7 +805,7 @@ async function init() {
     if (page === 'chamados') await initTickets();
     if (page === 'chamado-detalhe') await initTicketDetail();
     if (page === 'cliente' && hasElement('client-tickets-view')) await initClientTickets();
-    if (page === 'cliente' && hasElement('client-ticket-detail-view')) await initClientTicketDetail();
+    else if (page === 'cliente' && hasElement('client-ticket-detail-view')) await initClientTicketDetail();
   } catch (err) {
     toast(errorMessage(err), 'error');
   }
