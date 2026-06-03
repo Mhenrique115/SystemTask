@@ -118,6 +118,10 @@ function $<T extends HTMLElement = any>(id: string): T {
   return element as T;
 }
 
+function hasElement(id: string) {
+  return Boolean(document.getElementById(id));
+}
+
 const money = (value: unknown) => Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 const date = (value: string | null | undefined) => (value ? new Date(value).toLocaleString('pt-BR') : '-');
 const sanitize = (html: string | null | undefined) => window.DOMPurify ? window.DOMPurify.sanitize(html || '') : html || '';
@@ -800,8 +804,8 @@ async function init() {
     if (page === 'usuarios') await initUsers();
     if (page === 'chamados') await initTickets();
     if (page === 'chamado-detalhe') await initTicketDetail();
-    if (page === 'cliente' && $('client-tickets-view')) await initClientTickets();
-    if (page === 'cliente' && $('client-ticket-detail-view')) await initClientTicketDetail();
+    if (page === 'cliente' && hasElement('client-tickets-view')) await initClientTickets();
+    if (page === 'cliente' && hasElement('client-ticket-detail-view')) await initClientTicketDetail();
   } catch (err) {
     toast(errorMessage(err), 'error');
   }
