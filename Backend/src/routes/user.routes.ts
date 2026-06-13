@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { UserController } from '../controllers/user.controller';
 import { authenticate, requireAdmin } from '../middlewares/auth.middleware';
-
+// teste
 const router = Router();
 const controller = new UserController();
 
